@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\InvalidSpotifyStateException;
+use App\Exceptions\SpotifyAccessTokenNotSetException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use SpotifyWebAPI\Session;
@@ -13,7 +14,6 @@ class SpotifyService
     protected Session $session;
     protected SpotifyWebAPI $spotifyAPI;
     protected $generatedState;
-    protected $accessToken;
     public function __construct()
     {
         $this->session = new Session(
@@ -27,19 +27,20 @@ class SpotifyService
 
     public function login()
     {
-       $this->generatedState = $this->session->generateState();
-       $options = [
-           'scope'=> [
-               'playlist-read-private',
-               'playlist-modify-public',
-               'user-follow-read',
-               'user-follow-modify',
-               'user-read-private',
-               'user-read-recently-played',
-               'user-top-read',
-           ]
-       ];
-       return $this->session->getAuthorizeUrl($options);
+        $this->generatedState = $this->session->generateState();
+        $options = [
+            'scope'=> [
+                'playlist-read-private',
+                'playlist-modify-public',
+                'user-follow-read',
+                'user-follow-modify',
+                'user-read-private',
+                'user-read-recently-played',
+                'user-top-read',
+                'user-library-read',
+            ]
+        ];
+        return $this->session->getAuthorizeUrl($options);
     }
 
     public function callback(Request $request): JsonResponse
@@ -51,19 +52,32 @@ class SpotifyService
 
         $this->session->requestAccessToken($request->get('code'));
 
-        $this->accessToken = $this->session->getAccessToken();
+        $accessToken = $this->session->getAccessToken();
         $refreshToken = $this->session->getRefreshToken();
 
+        session([
+            'spotify_access_token' => $accessToken,
+            'spotify_refresh_token' => $refreshToken,
+        ]);
+
         return response()->json([
-            'access_token' => $this->accessToken,
+            'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
         ]);
     }
 
-    public function getInfromationAboutUser()
+    public function getApi(): SpotifyWebAPI
     {
-        $this->spotifyAPI->setAccessToken($this->accessToken);
-        return $this->spotifyAPI->me();
+        $this->spotifyAPI = new SpotifyWebAPI();
+        if(!session()->has('spotify_access_token')) {
+            throw new SpotifyAccessTokenNotSetException();
+        }
+        $this->spotifyAPI->setAccessToken(session('spotify_access_token'));
+        return $this->spotifyAPI;
     }
 
+    public function getUser()
+    {
+        return $this->getApi()->me();
+    }
 }

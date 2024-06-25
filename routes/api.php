@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\SpotifyController;
+use App\Http\Controllers\SpotifyPlaylistController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,7 +26,23 @@ Route::prefix('auth')->name('auth.')->group(function () {
 });
 
 Route::prefix('spotify')->name('spotify.')->group(function () {
-    Route::get('/login', [SpotifyController::class, 'login'])->name('index');
+    Route::get('/login', [SpotifyController::class, 'login'])->name('login')->middleware('auth:sanctum');
     Route::get('/callback', [SpotifyController::class, 'callback'])->name('callback');
-    Route::get('/me', [SpotifyController::class, 'getUserInfo'])->name('user-info');
+    Route::get('/me', [SpotifyController::class, 'getUserInfo'])->name('user-info')->middleware('auth:sanctum');
+    Route::get('/user/tracks', [SpotifyController::class, 'getUserTracks'])->name('user-tracks')->middleware('auth:sanctum');
+    Route::get('/user/saved-tracks', [SpotifyController::class, 'getUserSavedTracks'])->name('user-saved-tracks')->middleware('auth:sanctum');
+    Route::get('/user/playlists', [SpotifyController::class, 'getUserTracksFromPlaylists'])->name('user-playlists')->middleware('auth:sanctum');
+    Route::get('/user/update-artists-genres', [SpotifyController::class, 'updateArtistsGenres'])->name('update-artists-genres')->middleware('auth:sanctum');
+});
+
+Route::prefix('analytics')->name('analytics.')->group(function () {
+    Route::get('/user-analytics', AnalyticsController::class)->name('user-analytics')->middleware('auth:sanctum');
+});
+
+Route::prefix('recommendations')->name('recommendations.')->group(function () {
+    Route::get('/base-recommendations', [RecommendationsController::class, 'getRecommendations'])->name('recommendations')->middleware('auth:sanctum');
+});
+
+Route::prefix('playlists')->name('playlists.')->group(function () {
+    Route::get('/create-playlist-for-driving', [SpotifyPlaylistController::class, 'createPlaylistForDriving'])->name('create-playlist-for-driving')->middleware('auth:sanctum');
 });

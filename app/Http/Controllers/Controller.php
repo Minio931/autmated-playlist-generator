@@ -11,6 +11,12 @@ use Illuminate\Routing\Controller as BaseController;
  *    title="Swagger with Laravel",
  *    version="1.0.0",
  * )
+ * @OA\SecurityScheme(
+ *      securityScheme="sanctum",
+ *      type="apiKey",
+ *
+ *      scheme="bearer",
+ *  )
  */
 class Controller extends BaseController
 {

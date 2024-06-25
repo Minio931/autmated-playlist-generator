@@ -5,10 +5,104 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/analytics/user-analytics": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get user's analytics",
+                "description": "Get user's analytics",
+                "operationId": "getUserAnalytics",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "average_duration": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "most_listened_genres": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "genre": {
+                                                        "type": "string"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "average_acousticness": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "average_danceability": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "average_energy": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "most_listened_key": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "average_loudness": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "most_listened_mode": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "average_tempo": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "most_listened_time_signature": {
+                                            "type": "number",
+                                            "format": "float"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/auth/register": {
             "post": {
                 "tags": [
-                    "Register"
+                    "Auth"
                 ],
                 "summary": "Register a new user",
                 "description": "User Registration Endpoint",
@@ -73,10 +167,134 @@
                 }
             }
         },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login to the system",
+                "description": "Login to the system",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "text"
+                                    },
+                                    "password": {
+                                        "type": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/recommendations/base-recommendations": {
+            "get": {
+                "tags": [
+                    "Recommendations"
+                ],
+                "summary": "Get recommendations",
+                "description": "Get recommendations",
+                "operationId": "getRecommendations",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "recommendations": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "seed_genres": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "seed_artists": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "target_genres": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/spotify/login": {
             "get": {
                 "tags": [
-                    "spotify"
+                    "Spotify"
                 ],
                 "summary": "Login to Spotify",
                 "description": "Login to Spotify",
@@ -112,13 +330,18 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/spotify/callback": {
             "post": {
                 "tags": [
-                    "spotify"
+                    "Spotify"
                 ],
                 "summary": "Callback from Spotify",
                 "description": "Callback from Spotify",
@@ -169,17 +392,22 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
-        "/api/spotify/me": {
+        "/api/spotify/user/tracks": {
             "get": {
                 "tags": [
-                    "spotify"
+                    "Spotify"
                 ],
-                "summary": "Get user information",
-                "description": "Get user information",
-                "operationId": "me",
+                "summary": "Get user's top tracks",
+                "description": "Get user's top tracks",
+                "operationId": "getUserTracks",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -187,8 +415,16 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "id": {
-                                            "type": "string"
+                                        "tracks": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "track_id": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -211,7 +447,245 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/spotify/user/saved-tracks": {
+            "get": {
+                "tags": [
+                    "Spotify"
+                ],
+                "summary": "Get user's saved tracks",
+                "description": "Get user's saved tracks",
+                "operationId": "getUserSavedTracks",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "tracks": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "track_id": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/spotify/user/playlists": {
+            "get": {
+                "tags": [
+                    "Spotify"
+                ],
+                "summary": "Get user's playlists",
+                "description": "Get user's playlists",
+                "operationId": "getUserPlaylists",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "playlists": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "playlist_id": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/spotify/user/update-artists-genres": {
+            "get": {
+                "tags": [
+                    "Spotify"
+                ],
+                "summary": "Get user's artists genres",
+                "description": "Get user's artists genres",
+                "operationId": "getUserArtistsGenres",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "artists": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "artist_id": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/playlists/create-playlist-for-driving": {
+            "get": {
+                "tags": [
+                    "Spotify Playlist"
+                ],
+                "summary": "Create a playlist for driving",
+                "description": "Create a playlist for driving",
+                "operationId": "createPlaylistForDriving",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "playlist": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer )",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     }

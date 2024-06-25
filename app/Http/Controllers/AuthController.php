@@ -15,12 +15,11 @@ class AuthController extends Controller
 {
     public function __construct(private readonly AuthService $authService){ }
 
-
     /**
      * @OA\Post(
      *     path="/api/auth/register",
      *     operationId="registerUser",
-     *     tags={"Register"},
+     *     tags={"Auth"},
      *     summary="Register a new user",
      *     description="User Registration Endpoint",
      *     @OA\RequestBody(
@@ -66,12 +65,44 @@ class AuthController extends Controller
     }
 
     /**
-     * @throws UserNotFoundExeception
-     * @throws InvalidPasswordException
+    * @OA\Post(
+     *     path="/api/auth/login",
+     *     operationId="loginUser",
+     *     tags={"Auth"},
+     *     summary="Login to the system",
+     *     description="Login to the system",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 required={"email","password"},
+     *                 @OA\Property(property="email",type="text"),
+     *                 @OA\Property(property="password",type="password"),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="User logged in successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *             ),
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *            ),
+     *         )
+     *     ),
+     * )
      */
     public function login(UserRequest $request): JsonResponse
     {
-        $user = $this->authService->login($request->input('email'), $request->input('password')());
+        $user = $this->authService->login($request->input('email'), $request->input('password'));
 
         return response()->json([
             'message' => 'User logged in successfully',

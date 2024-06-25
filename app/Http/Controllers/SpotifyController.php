@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Services\SpotifyService;
+use App\Services\SpotifyUserService;
 use Illuminate\Http\Request;
+
+
 
 class SpotifyController extends Controller
 {
-    public function __construct(private readonly SpotifyService $service) {}
+    public function __construct(
+        private readonly SpotifyService $service,
+        private readonly SpotifyUserService $userService
+    ) {}
 
     /**
      * @OA\Get(
@@ -15,7 +21,10 @@ class SpotifyController extends Controller
      *     summary="Login to Spotify",
      *     description="Login to Spotify",
      *     operationId="login",
-     *     tags={"spotify"},
+     *     tags={"Spotify"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(
      *         response="200",
      *         description="Success",
@@ -53,7 +62,10 @@ class SpotifyController extends Controller
      *     summary="Callback from Spotify",
      *     description="Callback from Spotify",
      *     operationId="callback",
-     *     tags={"spotify"},
+     *     tags={"Spotify"},
+     *          security={
+     *          {"sanctum": {}}
+     *      },
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -97,19 +109,29 @@ class SpotifyController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/spotify/me",
-     *     summary="Get user information",
-     *     description="Get user information",
-     *     operationId="me",
-     *     tags={"spotify"},
+     *     path="/api/spotify/user/tracks",
+     *     summary="Get user's top tracks",
+     *     description="Get user's top tracks",
+     *     operationId="getUserTracks",
+     *     security={
+     *          {"sanctum": {}}
+     *      },
+     *     tags={"Spotify"},
      *     @OA\Response(
      *         response="200",
      *         description="Success",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(
-     *                 property="id",
-     *                 type="string",
+     *                 property="tracks",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="track_id",
+     *                         type="string",
+     *                     )
+     *                 )
      *             )
      *         )
      *     ),
@@ -126,9 +148,152 @@ class SpotifyController extends Controller
      *     ),
      * )
      */
-    public function getUserInfo()
+    public function getUserTracks(Request $request)
     {
-        return response()->json($this->service->getInfromationAboutUser());
+        $tracks = $this->userService->getUsersTopTracks();
+        return $tracks;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/spotify/user/saved-tracks",
+     *     summary="Get user's saved tracks",
+     *     description="Get user's saved tracks",
+     *     operationId="getUserSavedTracks",
+     *     security={
+     *          {"sanctum": {}}
+     *      },
+     *     tags={"Spotify"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="tracks",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="track_id",
+     *                         type="string",
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *             )
+     *         )
+     *     ),
+     * )
+     */
+
+    public function getUserSavedTracks(Request $request)
+    {
+        $tracks = $this->userService->getUserSavedTracks();
+        return $tracks;
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/spotify/user/playlists",
+     *     summary="Get user's playlists",
+     *     description="Get user's playlists",
+     *     operationId="getUserPlaylists",
+     *     security={
+     *          {"sanctum": {}}
+     *      },
+     *     tags={"Spotify"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="playlists",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="playlist_id",
+     *                         type="string",
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *             )
+     *         )
+     *     ),
+     * )
+     */
+    public function getUserTracksFromPlaylists(Request $request): array
+    {
+        $tracks = $this->userService->getUserTracksFromPlaylists();
+        return $tracks;
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/spotify/user/update-artists-genres",
+     *     summary="Get user's artists genres",
+     *     description="Get user's artists genres",
+     *     operationId="getUserArtistsGenres",
+     *     security={
+     *          {"sanctum": {}}
+     *      },
+     *     tags={"Spotify"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="artists",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="artist_id",
+     *                         type="string",
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *             )
+     *         )
+     *     ),
+     * )
+     */
+
+    public function updateArtistsGenres(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $artists = $this->userService->updateArtistsGenres();
+        return response()->json($artists);
+    }
 }

@@ -26,7 +26,7 @@ class AuthService
         });
     }
 
-    public function login(string $email, string $password) : UserResource
+    public function login(string $email, string $password): string
     {
         $user = User::where('email', $email)->first();
 
