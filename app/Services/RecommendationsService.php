@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\UserAnalytics;
+use Illuminate\Support\Facades\Log;
 
 class RecommendationsService
 {
@@ -13,16 +14,23 @@ class RecommendationsService
         private readonly AnalyticsService $analyticsService,
         private readonly SpotifyService $spotifyService,
     ){
+
+    }
+
+    private function prepareOptions($limit = 50)
+    {
         $this->userAnalytics = $this->analyticsService->gatherUserAnalyticsData();
 
-        $user_genres = json_decode($this->userAnalytics ->most_listened_genres);
+        $user_genres = json_decode($this->userAnalytics->most_listened_genres);
         $seed_genres = $this->spotifyService->getApi()->getGenreSeeds();
-        $this->seed_genres = array_values(array_intersect($seed_genres->genres, $user_genres));
+        $this->seed_genres = array_values(array_intersect($user_genres, $seed_genres->genres));
+
+
 
         $this->options = [
             'limit' => 20,
             'market' => 'PL',
-            'seed_genres' => $seed_genres,
+            'seed_genres' => $this->seed_genres,
             'target_acousticness' => $this->userAnalytics->average_acousticness,
             'target_danceability' => $this->userAnalytics->average_danceability,
             'target_energy' => $this->userAnalytics->average_energy,
@@ -35,30 +43,34 @@ class RecommendationsService
         ];
     }
 
-    public function getRecommendations($limit = 10)
+    public function getRecommendations($limit = 50)
     {
+        $this->prepareOptions($limit);
+        Log::info(print_r($this->options, true));
         $this->options['limit'] = $limit;
-        $recommendations = $this->spotifyService->getApi()->getRecommendations($this->options);
-        return $recommendations;
+        return $this->spotifyService->getApi()->getRecommendations($this->options);
     }
 
-    public function getRecommendationsForDriving($limit = 10)
+    public function getRecommendationsForDriving($limit = 50)
     {
 
+        $this->prepareOptions($limit);
         $this->options['limit'] = $limit;
         $this->options['target_tempo'] = min($this->userAnalytics->average_tempo + 20,200);
         $this->options['target_energy'] = min($this->userAnalytics->average_energy + 0.5,1);
         $this->options['target_danceability'] = min($this->userAnalytics->most_listened_key + 0.2,1);
 
-        $recommendations = $this->spotifyService->getApi()->getRecommendations($this->options);
-        return $recommendations;
+
+
+        return $this->spotifyService->getApi()->getRecommendations($this->options);
     }
 
-    public function getRecommendationsForWorkout($limit = 10)
+    public function getRecommendationsForWorkout($limit = 50)
     {
 
+        $this->prepareOptions($limit);
         $this->options['limit'] = $limit;
-        $this->options['target_tempo'] = min($this->userAnalytics->average_tempo + 50,220);
+        $this->options['target_tempo'] = min($this->userAnalytics->average_tempo + 100,220);
         $this->options['target_energy'] = min($this->userAnalytics->average_energy + 0.5,1);
         $this->options['target_danceability'] = min($this->userAnalytics->most_listened_key + 0.4,1);
         $this->options["target_loudness"] = max($this->userAnalytics->average_loudness - 5,-60);
@@ -69,9 +81,10 @@ class RecommendationsService
         return $recommendations;
     }
 
-    public function getRecommendationsForWork($limit = 10)
+    public function getRecommendationsForWork($limit = 50)
     {
 
+        $this->prepareOptions($limit);
         $this->options['limit'] = $limit;
         $this->options['target_tempo'] = max($this->userAnalytics->average_tempo - 50,120);
         $this->options['target_energy'] = max($this->userAnalytics->average_energy - 0.5,1);
@@ -82,8 +95,9 @@ class RecommendationsService
         return $recommendations;
     }
 
-    public function getRecomendationForReading($limit = 10)
+    public function getRecomendationForReading($limit = 50)
     {
+        $this->prepareOptions($limit);
         $this->options['limit'] = $limit;
         $this->options['target_tempo'] = min($this->userAnalytics->average_tempo - 20,100);
         $this->options['target_energy'] = max($this->userAnalytics->average_energy - 0.5,0.1);

@@ -45,4 +45,8 @@ Route::prefix('recommendations')->name('recommendations.')->group(function () {
 
 Route::prefix('playlists')->name('playlists.')->group(function () {
     Route::get('/create-playlist-for-driving', [SpotifyPlaylistController::class, 'createPlaylistForDriving'])->name('create-playlist-for-driving')->middleware('auth:sanctum');
+    Route::get('/create-playlist-for-working', [SpotifyPlaylistController::class, 'createPlaylistForWorking'])->name('create-playlist-for-working')->middleware('auth:sanctum');
+    Route::get('/create-playlist-for-reading', [SpotifyPlaylistController::class, 'createPlaylistForReading'])->name('create-playlist-for-reading')->middleware('auth:sanctum');
+    Route::get('/create-playlist-for-workout', [SpotifyPlaylistController::class, 'createPlaylistForWorkout'])->name('create-playlist-for-workout')->middleware('auth:sanctum');
+    Route::get('/create-playlist-from-recommendations', [SpotifyPlaylistController::class, 'createPlaylistFromRecommendations'])->name('create-playlist-from-recommendations')->middleware('auth:sanctum');
 });

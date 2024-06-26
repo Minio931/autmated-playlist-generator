@@ -14,7 +14,6 @@ use Illuminate\Routing\Controller as BaseController;
  * @OA\SecurityScheme(
  *      securityScheme="sanctum",
  *      type="apiKey",
- *
  *      scheme="bearer",
  *  )
  */

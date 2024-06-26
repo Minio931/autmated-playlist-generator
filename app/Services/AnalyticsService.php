@@ -6,6 +6,7 @@ use App\Models\Artist;
 use App\Models\MusicTrack;
 use App\Models\UserAnalytics;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AnalyticsService
 {
@@ -29,7 +30,6 @@ class AnalyticsService
     public function gatherUserAnalyticsData(): UserAnalytics
     {
         $user = Auth::user();
-
         $analytics = UserAnalytics::where('user_id', $user->id)->first();
         if ($analytics) {
             return $analytics;

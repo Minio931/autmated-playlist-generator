@@ -30,14 +30,14 @@ class SpotifyService
         $this->generatedState = $this->session->generateState();
         $options = [
             'scope'=> [
-                'playlist-read-private',
-                'playlist-modify-public',
                 'user-follow-read',
                 'user-follow-modify',
                 'user-read-private',
                 'user-read-recently-played',
                 'user-top-read',
                 'user-library-read',
+                'playlist-modify-public',
+                'playlist-modify-private'
             ]
         ];
         return $this->session->getAuthorizeUrl($options);

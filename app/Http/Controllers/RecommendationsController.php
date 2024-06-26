@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\RecommendationsService;
 
+
 class RecommendationsController extends Controller
 {
     public function __construct(
